@@ -1,29 +1,31 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/CrowderSoup/drinkingaroundthe.world/web"
+	"github.com/CrowderSoup/drinkingaroundthe.world/web/handlers"
 )
 
-type ServerCmd struct {
-	server *web.Server
-	port   string
+func init() {
+	rootCmd.AddCommand(serverCmd)
+
+	serverCmd.Flags().StringP("port", "p", viper.GetString("port"), "The port that the web server should run on")
 }
 
-func NewServerCmd(server *web.Server) *ServerCmd {
-	return &ServerCmd{
-		server: server,
-	}
-}
+var serverCmd = &cobra.Command{
+	Use:   "server",
+	Short: "Starts the web server",
+	Long:  `Starts the web server for running Drink Around the World`,
+	Run: func(cmd *cobra.Command, args []string) {
+		e := echo.New()
 
-func (c *ServerCmd) Start() func(cmd *cobra.Command, args []string) {
-	return func(cmd *cobra.Command, args []string) {
-		err := c.server.Start(c.port)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
+		indexHandler := handlers.NewIndexHandlerGroup(e)
+
+		server := web.NewServer(e, indexHandler)
+
+		server.Start(cmd.Flag("port").Value.String())
+	},
 }
