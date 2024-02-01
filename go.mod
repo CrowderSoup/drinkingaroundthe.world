@@ -2,10 +2,7 @@ module github.com/CrowderSoup/drinkingaroundthe.world
 
 go 1.21.5
 
-require (
-	github.com/foolin/goview v0.3.0
-	go.uber.org/fx v1.20.1
-)
+require github.com/foolin/goview v0.3.0
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -41,8 +38,6 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/dig v1.17.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 )

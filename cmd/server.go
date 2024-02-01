@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/CrowderSoup/drinkingaroundthe.world/web"
-	"github.com/CrowderSoup/drinkingaroundthe.world/web/handlers"
 )
 
 func init() {
@@ -22,9 +21,7 @@ var serverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		e := echo.New()
 
-		indexHandler := handlers.NewIndexHandlerGroup(e)
-
-		server := web.NewServer(e, indexHandler)
+		server := web.NewServer(e)
 
 		server.Start(cmd.Flag("port").Value.String())
 	},

@@ -6,18 +6,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type IndexHandlerGroup struct {
-	Group *echo.Group
-}
-
-func NewIndexHandlerGroup(e *echo.Echo) *IndexHandlerGroup {
-	group := e.Group("")
+func initIndexHandlerGroup(e *echo.Echo, path string) {
+	group := e.Group(path)
 
 	group.GET("", getIndex)
-
-	return &IndexHandlerGroup{
-		Group: group,
-	}
 }
 
 func getIndex(c echo.Context) error {
