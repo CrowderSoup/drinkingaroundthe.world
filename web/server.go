@@ -23,11 +23,13 @@ func NewServer(e *echo.Echo, indexHandlerGroup *handlers.IndexHandlerGroup) *Ser
 
 	e.Use(middleware.Logger())
 
+	e.Static("/static", "web/static")
+
 	return &Server{
 		echo: e,
 	}
 }
 
-func (s *Server) Start(port string) error {
-	return s.echo.Start(fmt.Sprintf(":%s", port))
+func (s *Server) Start(port string) {
+	s.echo.Start(fmt.Sprintf(":%s", port))
 }
