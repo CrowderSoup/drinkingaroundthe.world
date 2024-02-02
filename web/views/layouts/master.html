@@ -1,15 +1,20 @@
-<!DOCTYPE >
+<!doctype html>
 <html>
   <head>
     <title>Drinking Around the World</title>
     <link rel="manifest" href="./static/site.webmanifest.json" />
     <link href="./static/favicon.ico" rel="icon" />
-    <link href="./static/styles.min.css" rel="stylesheet" />
+    <link href="./static/styles.css" rel="stylesheet" />
 
     <script src="./static/htmx.min.js" type="text/javascript"></script>
   </head>
   <body>
-    <h1 class="text-3xl font-bold">Drinking Around the World</h1>
-    {{template "content" .}}
+    <div class="flex flex-col h-dvh justify-between">
+      {{include "layouts/header"}}
+      <div class="flex justify-center mt-2 mb-auto">
+        {{template "content" .}}
+      </div>
+      {{include "layouts/footer"}}
+    </div>
   </body>
 </html>
