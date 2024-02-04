@@ -9,18 +9,21 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/CrowderSoup/drinkingaroundthe.world/services"
 	"github.com/CrowderSoup/drinkingaroundthe.world/web/handlers"
 	"github.com/foolin/goview"
 	"github.com/foolin/goview/supports/echoview-v4"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"gorm.io/gorm"
 )
 
 type Server struct {
 	echo *echo.Echo
 }
 
-func NewServer(e *echo.Echo) *Server {
+func NewServer(e *echo.Echo, db *gorm.DB, secret string) *Server {
 	e.Renderer = echoview.New(goview.Config{
 		Root:      "web/views",
 		Extension: ".html",
@@ -31,6 +34,10 @@ func NewServer(e *echo.Echo) *Server {
 	})
 
 	e.Use(middleware.Logger())
+
+	// Get our Session Store ready
+	store := services.InitSessionStore(secret, db, true)
+	e.Use(session.Middleware(store))
 
 	e.Static("/static", "web/static")
 
