@@ -8,19 +8,19 @@ import (
 )
 
 type JwtService struct {
-	secret string
+	secret []byte
 }
 
 func NewJwtService() *JwtService {
 	secret := viper.GetString("secret")
 
 	return &JwtService{
-		secret: secret,
+		secret: []byte(secret),
 	}
 }
 
-func (j *JwtService) CreateLoginToken() (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{})
+func (j *JwtService) CreateLoginToken(claims jwt.MapClaims) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return token.SignedString(j.secret)
 }
@@ -31,6 +31,6 @@ func (j *JwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(j.secret), nil
+		return j.secret, nil
 	})
 }

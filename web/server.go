@@ -11,11 +11,12 @@ import (
 
 	"github.com/CrowderSoup/drinkingaroundthe.world/services"
 	"github.com/CrowderSoup/drinkingaroundthe.world/web/handlers"
+	"github.com/CrowderSoup/drinkingaroundthe.world/web/middleware"
 	"github.com/foolin/goview"
 	"github.com/foolin/goview/supports/echoview-v4"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"gorm.io/gorm"
 )
 
@@ -33,11 +34,15 @@ func NewServer(e *echo.Echo, db *gorm.DB, secret string) *Server {
 		},
 	})
 
-	e.Use(middleware.Logger())
+	e.Use(echoMiddleware.Logger())
+	e.Use(middleware.DrinksContextMiddleware)
 
 	// Get our Session Store ready
+	fmt.Println("going to set up session store")
 	store := services.InitSessionStore(secret, db, true)
+	fmt.Println("session store initialized")
 	e.Use(session.Middleware(store))
+	e.Use(middleware.SessionMiddleware)
 
 	e.Static("/static", "web/static")
 

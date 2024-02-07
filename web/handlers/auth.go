@@ -5,6 +5,8 @@ import (
 
 	"github.com/CrowderSoup/drinkingaroundthe.world/services"
 	"github.com/CrowderSoup/drinkingaroundthe.world/services/email"
+	"github.com/CrowderSoup/drinkingaroundthe.world/web/middleware"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -31,15 +33,21 @@ func handleLoginSubmit(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
-	// TODO: create session, set sessionId as a claim in the JWT
+	drinksContext := c.(*middleware.DrinksContext)
+	session := drinksContext.Get("session").(*services.Session)
+
 	mailgunService := email.NewMailgun()
 	jwtService := services.NewJwtService()
 
-	tokenString, err := jwtService.CreateLoginToken()
+	tokenString, err := jwtService.CreateLoginToken(jwt.MapClaims{
+		"sessionId": session.Internal.ID,
+	})
 	if err != nil {
+		c.Logger().Print("error getting token")
 		return c.String(http.StatusInternalServerError, "server error while creating login token")
 	}
 
+	// TODO: Mailgun is return a 401... need to figure that out tomorrow
 	mailgunService.SendMagicLink(form.Email, tokenString)
 
 	return c.Render(http.StatusOK, "auth/login-email-sent.html", echo.Map{
