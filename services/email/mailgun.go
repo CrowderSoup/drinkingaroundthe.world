@@ -3,11 +3,9 @@ package email
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/mailgun/mailgun-go/v4"
-	"github.com/spf13/viper"
 )
 
 type MG struct {
@@ -15,21 +13,18 @@ type MG struct {
 	sender  string
 }
 
-func NewMailgun() *MG {
-	mailgunApiKey := viper.GetString("mailgun_api_key")
-	mailgunDomain := viper.GetString("mailgun_domain")
-	mailgunSendingAddress := viper.GetString("mailgun_sending_address")
-
+func NewMailgun(domain, apiKey, senderAddress string) *MG {
 	return &MG{
-		mailgun: mailgun.NewMailgun(mailgunDomain, mailgunApiKey),
-		sender:  mailgunSendingAddress,
+		mailgun: mailgun.NewMailgun(domain, apiKey),
+		sender:  senderAddress,
 	}
 }
 
-func (m *MG) SendMagicLink(recipient, magicKey string) (string, string) {
+func (m *MG) SendMagicLink(recipient, magicKey string) error {
 	subject := "Login to Drink Around the World"
 
 	message := m.mailgun.NewMessage(m.sender, subject, "", recipient)
+	// TODO: Need to read in the template from a file. Also need to make it use the token in a link
 	body := fmt.Sprintf(`
 <html>
 <body>
@@ -45,11 +40,11 @@ func (m *MG) SendMagicLink(recipient, magicKey string) (string, string) {
 	defer cancel()
 
 	// Send the message with a 10 second timeout
-	resp, id, err := m.mailgun.Send(ctx, message)
+	_, _, err := m.mailgun.Send(ctx, message)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	return resp, id
+	return nil
 }

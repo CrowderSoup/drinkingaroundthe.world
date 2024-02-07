@@ -8,6 +8,7 @@ import (
 	"github.com/CrowderSoup/drinkingaroundthe.world/web/middleware"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	"github.com/spf13/viper"
 )
 
 type LoginForm struct {
@@ -36,19 +37,25 @@ func handleLoginSubmit(c echo.Context) error {
 	drinksContext := c.(*middleware.DrinksContext)
 	session := drinksContext.Get("session").(*services.Session)
 
-	mailgunService := email.NewMailgun()
+	mailgunDomain := viper.GetString("mailgun_domain")
+	mailgunApiKey := viper.GetString("mailgun_api_key")
+	mailgunSendingAddress := viper.GetString("mailgun_sending_address")
+	c.Logger().Printf("Domain: %s, APIKey: %s, SendingAddress: %s", mailgunDomain, mailgunApiKey, mailgunSendingAddress)
+	mailgunService := email.NewMailgun(mailgunDomain, mailgunApiKey, mailgunSendingAddress)
 	jwtService := services.NewJwtService()
 
 	tokenString, err := jwtService.CreateLoginToken(jwt.MapClaims{
-		"sessionId": session.Internal.ID,
+		"sessionId": session.GetValue("ID"),
 	})
 	if err != nil {
 		c.Logger().Print("error getting token")
 		return c.String(http.StatusInternalServerError, "server error while creating login token")
 	}
 
-	// TODO: Mailgun is return a 401... need to figure that out tomorrow
-	mailgunService.SendMagicLink(form.Email, tokenString)
+	err = mailgunService.SendMagicLink(form.Email, tokenString)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "server error while sending mailgun email")
+	}
 
 	return c.Render(http.StatusOK, "auth/login-email-sent.html", echo.Map{
 		"email": form.Email,
