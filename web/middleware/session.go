@@ -15,9 +15,15 @@ func SessionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 
-		// Set a unique ID for this session
-		id, err := gonanoid.New()
-		session.SetValue("ID", id, true)
+		existingSessionId := session.GetValue("ID")
+		if existingSessionId == nil {
+			// Set a unique ID for this session
+			id, err := gonanoid.New()
+			if err != nil {
+				return err
+			}
+			session.SetValue("ID", id, true)
+		}
 
 		cc.Set("session", session)
 
