@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mailgun/mailgun-go/v4"
+	"github.com/spf13/viper"
 )
 
 type MG struct {
@@ -14,9 +15,14 @@ type MG struct {
 	sender  string
 }
 
-func NewMailgun(sender, domain, privateKey string) *MG {
+func NewMailgun() *MG {
+	mailgunApiKey := viper.GetString("mailgun_api_key")
+	mailgunDomain := viper.GetString("mailgun_domain")
+	mailgunSendingAddress := viper.GetString("mailgun_sending_address")
+
 	return &MG{
-		mailgun: mailgun.NewMailgun(domain, privateKey),
+		mailgun: mailgun.NewMailgun(mailgunDomain, mailgunApiKey),
+		sender:  mailgunSendingAddress,
 	}
 }
 
