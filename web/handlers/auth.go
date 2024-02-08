@@ -15,6 +15,10 @@ type LoginForm struct {
 	Email string `form:"email"`
 }
 
+type LoginVerifyQueryParams struct {
+	Token string `query:"m"`
+}
+
 func initAuthHandlerGroup(e *echo.Echo, path string) {
 	group := e.Group(path)
 
@@ -37,10 +41,11 @@ func handleLoginSubmit(c echo.Context) error {
 	drinksContext := c.(*middleware.DrinksContext)
 	session := drinksContext.Get("session").(*services.Session)
 
+	session.SetValue("Email", form.Email, true)
+
 	mailgunDomain := viper.GetString("mailgun_domain")
 	mailgunApiKey := viper.GetString("mailgun_api_key")
 	mailgunSendingAddress := viper.GetString("mailgun_sending_address")
-	c.Logger().Printf("Domain: %s, APIKey: %s, SendingAddress: %s", mailgunDomain, mailgunApiKey, mailgunSendingAddress)
 	mailgunService := email.NewMailgun(mailgunDomain, mailgunApiKey, mailgunSendingAddress)
 	jwtService := services.NewJwtService()
 
@@ -63,6 +68,27 @@ func handleLoginSubmit(c echo.Context) error {
 }
 
 func handleLoginVerify(c echo.Context) error {
-	// TODO: get session and JWT, validate JWT, ensure sessionId matches claim
-	return nil
+	var query LoginVerifyQueryParams
+	err := c.Bind(&query)
+	if err != nil {
+		return c.Render(http.StatusBadRequest, "auth/invalid", echo.Map{})
+	}
+
+	drinksContext := c.(*middleware.DrinksContext)
+	session := drinksContext.Get("session").(*services.Session)
+
+	jwtService := services.NewJwtService()
+	_, err = jwtService.ValidateToken(query.Token, jwt.MapClaims{
+		"sessionId": session.GetValue("ID"),
+	})
+	if err != nil {
+		return c.Render(http.StatusBadRequest, "auth/invalid", echo.Map{})
+	}
+
+	session.SetValue("LoggedIn", true, true)
+
+	// TODO: Now that we know this is a valid user we should create an
+	// entry for them in the `Users` table
+
+	return c.Render(http.StatusOK, "auth/valid", echo.Map{})
 }

@@ -24,15 +24,21 @@ func (m *MG) SendMagicLink(recipient, magicKey string) error {
 	subject := "Login to Drink Around the World"
 
 	message := m.mailgun.NewMessage(m.sender, subject, "", recipient)
-	// TODO: Need to read in the template from a file. Also need to make it use the token in a link
+	urlString := fmt.Sprintf(`https://drinkaroundthe.world/auth/verify?m=%s`, magicKey)
+	anchorTag := fmt.Sprintf(`<a href="%s" target="_blank">Click here</a>`, urlString)
 	body := fmt.Sprintf(`
 <html>
 <body>
 	<h1>Login to Drink Around the World</h1>
-  <p>%s</p>
+  <p>
+    %s to log in to Drink Around the World. If you're unable to click the link, copy the URL below:
+  </p>
+  <p>
+    %s
+  </p>
 </body>
 </html>
-`, magicKey)
+`, anchorTag, urlString)
 
 	message.SetHtml(body)
 
