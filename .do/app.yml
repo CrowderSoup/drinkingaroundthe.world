@@ -1,0 +1,7 @@
+name: drinkaroundthe-world
+services:
+- name: web
+- dockerfile_path: Dockerfile
+  github:
+    repo: CrowderSoup/drinkingaroundthe.world
+    branch: main
