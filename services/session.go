@@ -46,12 +46,12 @@ func GetSession(name string, ctx echo.Context) (*Session, error) {
 }
 
 // GetValue gets a value from the session
-func (s *Session) GetValue(key string) interface{} {
+func (s *Session) GetValue(key string) any {
 	return s.Internal.Values[key]
 }
 
 // SetValue sets a value in the session
-func (s *Session) SetValue(key, value interface{}, shouldSave bool) error {
+func (s *Session) SetValue(key, value any, shouldSave bool) error {
 	s.Internal.Values[key] = value
 
 	if shouldSave {
@@ -71,7 +71,7 @@ func (s *Session) ClearAll() error {
 }
 
 // ClearValue clears a single value from the session
-func (s *Session) ClearValue(key interface{}) error {
+func (s *Session) ClearValue(key any) error {
 	delete(s.Internal.Values, key)
 
 	return s.Save()
