@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/CrowderSoup/drinkingaroundthe.world/services"
@@ -19,8 +20,10 @@ func getIndex(c echo.Context) error {
 	session := drinksContext.Get("session").(*services.Session)
 
 	loggedIn := session.GetValue("LoggedIn")
-	if !loggedIn {
-		return c.Render(http.StatusInternalServerError, "", echo.Map{})
+	fmt.Println(loggedIn)
+	if loggedIn == nil {
+		fmt.Println("Redirecting to login")
+		return c.Redirect(http.StatusTemporaryRedirect, "/auth")
 	}
 
 	return c.Render(http.StatusOK, "index", echo.Map{})
