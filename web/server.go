@@ -45,7 +45,7 @@ func NewServer(e *echo.Echo, db *gorm.DB, secret string) *Server {
 	e.Static("/static", "web/static")
 
 	// Init handlers
-	handlers.InitializeHandlers(e)
+	handlers.InitializeHandlers(e, db)
 
 	return &Server{
 		echo: e,

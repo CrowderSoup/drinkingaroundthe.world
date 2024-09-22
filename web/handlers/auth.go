@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 type LoginForm struct {
@@ -19,7 +20,7 @@ type LoginVerifyQueryParams struct {
 	Token string `query:"m"`
 }
 
-func initAuthHandlerGroup(e *echo.Echo, path string) {
+func initAuthHandlerGroup(e *echo.Echo, db *gorm.DB, path string) {
 	group := e.Group(path)
 
 	group.GET("", getLogin)
@@ -78,10 +79,13 @@ func handleLoginVerify(c echo.Context) error {
 	drinksContext := c.(*middleware.DrinksContext)
 	session := drinksContext.Get("session").(*services.Session)
 
+	email := session.GetValue("Email")
+	// TODO: try to get user by email
+
 	jwtService := services.NewJwtService()
 	_, err = jwtService.ValidateToken(query.Token, jwt.MapClaims{
 		"sessionId": session.GetValue("ID"),
-		"email":     session.GetValue("Email"),
+		"email":     email,
 	})
 	if err != nil {
 		return c.Render(http.StatusBadRequest, "auth/invalid", echo.Map{})
