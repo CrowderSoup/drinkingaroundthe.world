@@ -1,0 +1,10 @@
+version: '3.1'
+services:
+  pg:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=drinkingaroundtheworld
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data:/var/lib/postgresql/data

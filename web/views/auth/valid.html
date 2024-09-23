@@ -1,0 +1,19 @@
+{{define "content"}}
+<div id="login-valid-page">
+  <div class="max-w-md p-8 bg-white rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-center">Login Successful!</h1>
+    <p class="text-gray-700 text-center mt-4">You will be redirected to the homepage in <span id="countdown">5</span> seconds.</p>
+    <script>
+      const countdown = document.getElementById('countdown');
+      let seconds = 5;
+      setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+        if (seconds === 0) {
+          window.location.href = "/";
+        }
+      }, 1000);
+    </script>
+  </div>
+</div>
+{{end}}
